@@ -1,0 +1,12 @@
+camel:
+  springboot:
+    name: CamelRestSql
+  component:
+    servlet:
+      mapping:
+        enabled: true
+        context-path: /file-message-service/*
+
+quickstart:
+  generateOrderPeriod: 1s
+  processOrderPeriod: 3s

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -8,18 +8,18 @@
     <artifactId>file-message-service</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>Fabric8 :: Quickstarts :: Spring-Boot :: CXF JAXRS</name>
-    <description>Spring Boot example running a CXF JAXRS endpoint</description>
+    <name>Fuse Route based on Spring Boot and camel for PoT </name>
+    <description>Fuse Route based on Spring Boot and camel for PoT </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- Spring Boot default profile in order to use an embedded database -->
+        <run.profiles>dev</run.profiles>
 
         <!-- dependency versions -->
         <camel.version>2.21.2</camel.version>
         <fabric8.version>2.3.7</fabric8.version>
-        <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
-        <swagger-ui.version>2.1.0</swagger-ui.version>
+        <spring-boot.version>1.5.4.RELEASE</spring-boot.version>
 
         <!-- maven plugin versions -->
         <fabric8.maven.plugin.version>3.5.40</fabric8.maven.plugin.version>
@@ -29,13 +29,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>io.fabric8</groupId>
-                <artifactId>fabric8-project-bom-camel-spring-boot</artifactId>
-                <version>${fabric8.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -54,10 +47,13 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -74,41 +70,36 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>swagger-ui</artifactId>
-            <version>${swagger-ui.version}</version>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-servlet-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jackson-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-jaxrs</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-swagger-java-starter</artifactId>
         </dependency>
-
+        <dependency>
+             <groupId>org.apache.camel</groupId>
+             <artifactId>camel-csv</artifactId>
+        </dependency>
+        <dependency> 
+            <groupId>org.apache.camel</groupId> 
+            <artifactId>camel-xstream</artifactId> 
+         </dependency>
         <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jboss.arquillian.junit</groupId>
-            <artifactId>arquillian-junit-container</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.arquillian.cube</groupId>
-            <artifactId>arquillian-cube-openshift</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>kubernetes-assertions</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -117,6 +108,7 @@
         <plugins>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
@@ -129,7 +121,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
-                <inherited>true</inherited>
                 <configuration>
                     <argLine>-DenableImageStreamDetection=true</argLine>
                     <excludes>

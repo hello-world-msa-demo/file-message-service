@@ -1,8 +1,9 @@
 spec:
+  replicas: 1
   template:
     spec:
       containers:
-        -
+        - 
           resources:
             requests:
               cpu: "0.2"
@@ -13,3 +14,4 @@ spec:
           env:
           - name: SPRING_APPLICATION_JSON
             value: '{"server":{"undertow":{"io-threads":1, "worker-threads":2 }}}'
+         

@@ -1,0 +1,10 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  # Must match the 'spring.application.name' property of the application
+  name: fms
+data:
+  application.properties: |-
+    fms.fileDir: /tmp/
+    fms.fileName: transactionData.json
+  
