@@ -142,3 +142,27 @@ mvn test -Dtest=*Test
 ----
 
 The test is disabled by default and has to be enabled using `-Dtest`. https://fabric8.io/guide/testing.html[Integration Testing] and https://fabric8.io/guide/arquillian.html[Fabric8 Arquillian Extension] provide more information on writing full fledged black box integration tests for Kubernetes.
+
+### Config map
+In order to create the config map:
+
+```
+oc create -f ./src/main/resources/configmap.yml
+```
+In order to give the right permissions (to read the CM):
+```
+oc policy add-role-to-user view system:serviceaccount:PROJECTNAME:default -n PROJECTNAME
+```
+Here you can view the props currently loaded:
+
+```
+YOURAPPURL/camel/props
+```
+### Testing the app
+
+In order to test content based routing, you have to expose the service:
+
+```
+oc expose s2i-spring-boot-camel --port=8080
+oc expose service/s2i-spring-boot-camel
+```
