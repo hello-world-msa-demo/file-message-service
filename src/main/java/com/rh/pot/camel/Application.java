@@ -36,8 +36,8 @@ public class Application extends SpringBootServletInitializer {
 
     @Bean
     ServletRegistrationBean servletRegistrationBean() {
-        ServletRegistrationBean servlet = new ServletRegistrationBean(
-            new CamelHttpTransportServlet(), "/file-message-service/*");
+        ServletRegistrationBean servlet = new ServletRegistrationBean( 
+            new CamelHttpTransportServlet(), "/*");
         servlet.setName("CamelServlet");
         return servlet;
     }
@@ -48,7 +48,7 @@ public class Application extends SpringBootServletInitializer {
         @Override
         public void configure() {
             restConfiguration()
-                .contextPath("/file-message-service").apiContextPath("/api-doc")
+                .contextPath("/").apiContextPath("/api-doc")
                     .apiProperty("api.title", "Camel REST API")
                     .apiProperty("api.version", "1.0")
                     .apiProperty("cors", "true")
@@ -63,7 +63,7 @@ public class Application extends SpringBootServletInitializer {
                     .endRest();
 
           from("direct:fms")
-          .pollEnrich().simple("file:{{fms.fileDir}}?readLock=none&noop=true&idempotent=false&fileName={{fms.fileName}}")
+          .pollEnrich("file:{{fms.fileDir}}?readLock=none&noop=true&idempotent=false&fileName={{fms.fileName}}", 1000)
                     .log("FileContent: ${body}")
                     .convertBodyTo(String.class); 
                     //.transform().constant("Hello World"); 
