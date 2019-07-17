@@ -1,0 +1,276 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: fms
+objects:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      idling.alpha.openshift.io/idled-at: 2019-07-15T21:59:08Z
+      idling.alpha.openshift.io/previous-scale: "1"
+    creationTimestamp: null
+    generation: 6
+    labels:
+      component: file-message-service
+      group: quickstarts
+      project: file-message-service
+      provider: s2i
+      template: s2i-spring-boot-camel
+      template.openshift.io/template-instance-owner: 581ce342-a706-11e9-adbd-0a6f76b0a506
+      version: 1.0.0.redhat-000067
+    name: file-message-service
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      component: file-message-service
+      deploymentconfig: file-message-service
+      group: quickstarts
+      project: file-message-service
+      provider: s2i
+      version: 1.0.0.redhat-000067
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          component: file-message-service
+          deploymentconfig: file-message-service
+          group: quickstarts
+          project: file-message-service
+          provider: s2i
+          version: 1.0.0.redhat-000067
+      spec:
+        containers:
+        - env:
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: docker-registry.default.svc:5000/test/file-message-service@sha256:ce9c9f243983a3ed1983390f6b1418ffbe2304b7153e862ebdb196f012b35180
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 180
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: file-message-service
+          ports:
+          - containerPort: 8778
+            name: jolokia
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "1"
+            requests:
+              cpu: 200m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - file-message-service
+        from:
+          kind: ImageStreamTag
+          name: file-message-service:latest
+          namespace: test
+        lastTriggeredImage: docker-registry.default.svc:5000/test/file-message-service@sha256:ce9c9f243983a3ed1983390f6b1418ffbe2304b7153e862ebdb196f012b35180
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    labels:
+      component: file-message-service
+      group: quickstarts
+      project: file-message-service
+      provider: s2i
+      template: s2i-spring-boot-camel
+      template.openshift.io/template-instance-owner: 581ce342-a706-11e9-adbd-0a6f76b0a506
+      version: 1.0.0.redhat-000067
+    name: file-message-service
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      component: file-message-service
+      deploymentconfig: file-message-service
+      group: quickstarts
+      project: file-message-service
+      provider: s2i
+      version: 1.0.0.redhat-000067
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    labels:
+      component: file-message-service
+      group: quickstarts
+      project: file-message-service
+      provider: s2i
+      template: s2i-spring-boot-camel
+      template.openshift.io/template-instance-owner: 581ce342-a706-11e9-adbd-0a6f76b0a506
+      version: 1.0.0.redhat-000067
+    name: file-message-service
+  spec:
+    host: file-message-service-test.apps.rhpds311.openshift.opentlc.com
+    port:
+      targetPort: 8080
+    to:
+      kind: Service
+      name: file-message-service
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2019-07-15T16:38:44Z
+        status: "True"
+        type: Admitted
+      host: file-message-service-test.apps.rhpds311.openshift.opentlc.com
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    creationTimestamp: null
+    labels:
+      component: file-message-service
+      group: quickstarts
+      project: file-message-service
+      provider: s2i
+      template: s2i-spring-boot-camel
+      template.openshift.io/template-instance-owner: 581ce342-a706-11e9-adbd-0a6f76b0a506
+      version: 1.0.0.redhat-000067
+    name: file-message-service
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: file-message-service:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        uri: https://github.com/hello-world-msa-demo/file-message-service.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        env:
+        - name: BUILD_LOGLEVEL
+          value: "5"
+        - name: ARTIFACT_DIR
+        - name: MAVEN_ARGS
+          value: package -DskipTests -Dfabric8.skip -e -B
+        - name: MAVEN_ARGS_APPEND
+        forcePull: true
+        from:
+          kind: ImageStreamTag
+          name: fis-java-openshift:2.0
+          namespace: openshift
+        incremental: true
+      type: Source
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
+    - github:
+        secret: hRUks6CmJu5cwtxiPKMDQtchKGRllKRHQ4yphyuY
+      type: GitHub
+    - generic:
+        secret: hRUks6CmJu5cwtxiPKMDQtchKGRllKRHQ4yphyuY
+      type: Generic
+  status:
+    lastVersion: 0
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    generation: 1
+    labels:
+      component: file-message-service
+      group: quickstarts
+      project: file-message-service
+      provider: s2i
+      template: s2i-spring-boot-camel
+      template.openshift.io/template-instance-owner: 581ce342-a706-11e9-adbd-0a6f76b0a506
+      version: 1.0.0.redhat-000067
+    name: file-message-service
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: docker-registry.default.svc:5000/test/file-message-service:latest
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  data:
+    application.properties: |-
+      fms.fileDir: /data/
+      fms.fileName: transactionData.json
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: null
+    name: fms
