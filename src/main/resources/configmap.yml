@@ -6,5 +6,5 @@ metadata:
 data:
   application.properties: |-
     fms.fileDir: /data/
-    fms.fileName: transactionData.json
+    fms.fileName: transactionData.csv
   

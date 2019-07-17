@@ -56,12 +56,12 @@ public class Application extends SpringBootServletInitializer {
                 .component("servlet")
                 .bindingMode(RestBindingMode.json);
 
-            rest("/file").description("File retriever rest service")
+            rest("/api/messages/1").description("File retriever rest service")
                 .get("/").description("File retriever rest service")
                     .route().routeId("fms-api")
                     .to("direct:fms")
                     .endRest();
-
+        
           from("direct:fms")
           .pollEnrich("file:{{fms.fileDir}}?readLock=none&noop=true&idempotent=false&fileName={{fms.fileName}}", 1000)
                     .log("FileContent: ${body}")
