@@ -53,20 +53,22 @@ public class Application extends SpringBootServletInitializer {
                     .apiProperty("api.version", "1.0")
                     .apiProperty("cors", "true")
                     .apiContextRouteId("doc-api")
-                .component("servlet")
-                .bindingMode(RestBindingMode.json);
+                .component("servlet");
+
+                //.bindingMode(RestBindingMode.json);
 
             rest("/api/messages/1").description("File retriever rest service")
+                    .produces("application/json")
                 .get("/").description("File retriever rest service")
                     .route().routeId("fms-api")
                     .to("direct:fms")
+
                     .endRest();
         
           from("direct:fms")
           .pollEnrich("file:{{fms.fileDir}}?readLock=none&noop=true&idempotent=false&fileName={{fms.fileName}}", 1000)
                     .log("FileContent: ${body}")
-                    .convertBodyTo(String.class); 
-                    //.transform().constant("Hello World"); 
+                    .convertBodyTo(String.class);
 
 
            from("servlet:///props").transform(simple(
